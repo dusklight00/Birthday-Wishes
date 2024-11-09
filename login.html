@@ -173,9 +173,7 @@
           />
           <i class="fas fa-lock"></i>
         </div>
-        <button type="submit" class="submit-btn">
-          <a href="sample.html">Login</a>
-        </button>
+        <button type="submit" class="submit-btn">Login</button>
       </form>
     </div>
     <script>
@@ -222,7 +220,7 @@
         .addEventListener("submit", function (event) {
           event.preventDefault();
           if (username === "sudhamaam" && password === "mastersahil") {
-            window.location.href = "index.html";
+            window.location.href = "dashboard.html";
           } else {
             showToast("Invalid username or password");
           }
