@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Birthday Wishes</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Dancing+Script|Poppins:400,700"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="icon" href="path/to/your/favicon.ico" type="image/x-icon" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        background: #0a0a2e;
+        font-family: "Poppins", sans-serif;
+        padding: 20px;
+        overflow-x: hidden;
+      }
+
+      #particles-js {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .header {
+        text-align: center;
+        margin: 20px 0 40px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .header h1 {
+        font-family: "Dancing Script", cursive;
+        color: #fff;
+        font-size: 4.5em;
+        text-shadow: 0 0 10px rgba(255, 118, 118, 0.5),
+          0 0 20px rgba(255, 118, 118, 0.3), 0 0 30px rgba(255, 118, 118, 0.2);
+        margin-bottom: 15px;
+        position: relative;
+        display: inline-block;
+      }
+
+      .header p {
+        color: #fff;
+        font-size: 1.3em;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        opacity: 100;
+        animation: fadeIn 1s ease-out 0.5s forwards;
+        background: linear-gradient(45deg, #ff7676, #ff5f5f);
+        padding: 10px 20px;
+        border-radius: 20px;
+        display: inline-block;
+        transform: translateY(-10px);
+      }
+
+      .letters-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 40px;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 20px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .letter {
+        margin: 20px auto;
+        max-width: 380px;
+        height: 400px;
+        position: relative;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0);
+        }
+        50% {
+          transform: translateY(-20px) rotate(2deg);
+        }
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .envelope {
+        width: 100px;
+        height: 65px;
+        background: linear-gradient(135deg, #ff7676 0%, #ff5f5f 100%);
+        position: relative;
+        margin: auto;
+        cursor: pointer;
+        border-radius: 12px;
+        box-shadow: 0 15px 35px rgba(255, 118, 118, 0.3);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(310px);
+        animation: float 3s ease-in-out infinite;
+      }
+
+      .envelope:hover {
+        transform: translateY(305px) scale(1.1);
+        box-shadow: 0 20px 45px rgba(255, 118, 118, 0.4);
+      }
+
+      .envelope::before {
+        content: "";
+        position: absolute;
+        top: -25px;
+        left: 0;
+        width: 100%;
+        height: 25px;
+        background: linear-gradient(135deg, #ff8a8a 0%, #ff7676 100%);
+        transform-origin: bottom;
+        transform: rotateX(180deg);
+        transition: transform 0.4s ease;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .paper {
+        position: absolute;
+        width: 95%;
+        height: 0;
+        background: rgba(255, 255, 255, 0.98);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.1);
+        border-radius: 15px;
+        padding: 25px;
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      }
+
+      .letter--open .paper {
+        height: 350px;
+        width: 300px;
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+
+      .paper-content {
+        opacity: 0;
+        transition: opacity 0.4s ease 0.3s;
+        transform: translateY(20px);
+      }
+
+      .letter--open .paper-content {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .student-name {
+        font-family: "Dancing Script", cursive;
+        background: linear-gradient(45deg, #ff5f5f, #ff7676);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.2em;
+        margin-bottom: 20px;
+        text-align: center;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .wish-text {
+        font-size: 1.15em;
+        text-align: center;
+        padding: 0 15px;
+        color: #333;
+        line-height: 1.7;
+        font-weight: 300;
+      }
+
+      .paper-close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #ff7676, #ff5f5f);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: white;
+        font-size: 20px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+      }
+
+      .paper-close:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(255, 95, 95, 0.3);
+      }
+
+      .confetti {
+        position: fixed;
+        pointer-events: none;
+        mix-blend-mode: screen;
+        z-index: 1000;
+      }
+
+      .emoji {
+        position: absolute;
+        font-size: 30px;
+        pointer-events: none;
+        z-index: 1000;
+        filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+      }
+
+      .birthday-cake {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 100px;
+        height: 100px;
+        cursor: pointer;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+        font-size: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .birthday-cake:hover {
+        transform: scale(1.1);
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 3em;
+        }
+
+        .header p {
+          font-size: 1.1em;
+        }
+
+        .letters-container {
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Add the audio -->
+    <audio id="audioElement" loop autoplay playsinline>
+      <source src="song.mp3" type="audio/mpeg" />
+    </audio>
+
+    <div id="particles-js"></div>
+    <div class="header">
+      <h1>🎉 Happy Birthday Mam! 🎂</h1>
+    </div>
+
+    <div class="letters-container" id="lettersContainer"></div>
+    <div class="birthday-cake" onclick="spawnCakeConfetti()">🎂</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const audio = document.getElementById("audioElement");
+
+        // Function to force audio play
+        const forcePlay = async () => {
+          try {
+            // Set volume to 1
+            audio.volume = 1;
+            // Set current time to 0
+            audio.currentTime = 0;
+            // Force play
+            await audio.play();
+          } catch (e) {
+            console.log("Playback failed:", e);
+          }
+        };
+
+        // Try multiple approaches to autoplay
+        const initiateAutoplay = () => {
+          // Try immediate play
+          forcePlay();
+
+          // Retry play every second for 5 seconds
+          let attempts = 0;
+          const playInterval = setInterval(() => {
+            if (attempts >= 5) {
+              clearInterval(playInterval);
+              return;
+            }
+            forcePlay();
+            attempts++;
+          }, 1000);
+
+          // Try playing on various user interactions
+          const events = [
+            "click",
+            "touchstart",
+            "mousedown",
+            "keydown",
+            "scroll",
+          ];
+          events.forEach((event) => {
+            document.addEventListener(
+              event,
+              () => {
+                forcePlay();
+              },
+              { once: true }
+            );
+          });
+        };
+
+        // Start autoplay attempts
+        initiateAutoplay();
+
+        // Also try playing when window gets focus
+        window.onfocus = () => {
+          forcePlay();
+        };
+
+        // Try playing when visibility changes
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) {
+            forcePlay();
+          }
+        });
+
+        // If on iOS, try playing in response to orientation change
+        window.addEventListener("orientationchange", () => {
+          forcePlay();
+        });
+
+        // Ensure audio keeps playing
+        setInterval(() => {
+          if (audio.paused) {
+            forcePlay();
+          }
+        }, 1000);
+      });
+      // Initialize particles.js
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 80, density: { enable: true, value_area: 800 } },
+          color: { value: "#ffffff" },
+          shape: { type: "circle" },
+          opacity: {
+            value: 0.5,
+            random: true,
+            animation: {
+              enable: true,
+              speed: 1,
+              opacity_min: 0.1,
+              sync: false,
+            },
+          },
+          size: {
+            value: 3,
+            random: true,
+            animation: { enable: true, speed: 2, size_min: 0.1, sync: false },
+          },
+          line_linked: {
+            enable: true,
+            distance: 150,
+            color: "#ffffff",
+            opacity: 0.4,
+            width: 1,
+          },
+          move: {
+            enable: true,
+            speed: 2,
+            direction: "none",
+            random: false,
+            straight: false,
+            out_mode: "out",
+            bounce: false,
+          },
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: {
+            onhover: { enable: true, mode: "repulse" },
+            onclick: { enable: true, mode: "push" },
+            resize: true,
+          },
+          modes: {
+            repulse: { distance: 100, duration: 0.4 },
+            push: { particles_nb: 4 },
+          },
+        },
+        retina_detect: true,
+      });
+
+      const students = [
+        {
+          name: "Syed Mohammad",
+          wish: "Happy Birthday, Sudha Mam! 🎉 Wishing you strength, good health, and all the happiness in the world. May this year bring you healing and joy, and thank you for being such a wonderful, inspiring teacher! 🌸💖",
+        },
+        {
+          name: "Lavanya R Shetty",
+          wish: "Wishing You a many more happy returns of the day GURU❤...... You were always there whenever we needed you.... You have done lots of things for us.... You struggled a lot along with us in this journey.... Till my last my breath I'll never forget you ma'am.... I have said you already you are the first and the last GURU... I'll never find someone like you in this whole Universe ❤😘",
+        },
+        {
+          name: "Rahul Raj",
+          wish: "To the best teacher ever - Happy Birthday! Thank you for making every lesson an adventure. Hope your day is magical! 🎂",
+        },
+        {
+          name: "Yuvraj Singh",
+          wish: "Happy Birthday to an exceptional Sudharani Mam and mentor. May your day be filled with joy and celebration",
+        },
+        {
+          name: "Srijani M",
+          wish: "Hi mam, Hope you're doing well and having that bright smile on your face .. I pray to god that you smile the same way for years and years long .. I'm really I don't know what to write for this special day, bcz it's just not a day!  it's a festival to me .. I thank all the powers in the universe for making you as a my teacher. And we know that you have strictly warned us not to celebrate.. But how can we not ?? You are the only person who is close to our heart and we not only love, but adore you. You were a blessing to us and we cannot miss a chance to celebrate what we have. It's fine we can take up the scolding for not obeying u (when you said not to celebrate your bday) but this scolding is all worth it bcz we know, this small thing can bring a smile on your face .. I know recently, unknowingly I've hurted you .. and more than you I'm hurt bcz my intentions were never to hurt the person who is sooo close to me. I really love you mam and I'm really sorry if untensionally ur hurt .. But Once again a very HAPPY BIRTHDAY My Inspiration 🎁.. You are my role model .. and You can never go wrong for me(US) Love you, My inspiration",
+        },
+        {
+          name: "Varun",
+          wish: "Wish you many more happy returns of the day mam 🎉",
+        },
+        {
+          name: "Darshan KR",
+          wish: "On your special day, I want to express my heartfelt gratitude for all the support, guidance, and encouragement you've given us. You've not only helped us grow our skills but also taught us meaningful life lessons beyond the classroom. Your belief in us has truly been inspiring. Wishing you a wonderful birthday filled with joy, love, and the happiness Happy Birthday, Ma'am!",
+        },
+        {
+          name: "Divyesh kunar",
+          wish: "Wish you many more happy returns of the day mam my guider and best teacher thank you mam",
+        },
+        {
+          name: "Vaiju Patil",
+          wish: "Happy Birthday  Sudha Maam 🎉 I hope this day brings you as much joy  as you bring to all of us every day your guidance   have made such a difference and we're lucky to learn from someone as inspiring as you wishing you a year ahead filled with success good health and everything that makes you smile may your day be as special as the impact you have on everyone around you",
+        },
+        {
+          name: "Gagan Gowda K R",
+          wish: "Many more happy returns of the day mam We are so lucky to have you as a teacher Its your birthday may your day be filled with love, laughter and joy 🎊🎊🎊",
+        },
+        {
+          name: "Azad Dayal",
+          wish: "Happy birthday to an incredible mentor and guide Your dedication and support have been invaluable in preparing us for the future. Wishing you a day as inspiring and wonderful as you are. Thank you for all that you do",
+        },
+        {
+          name: "Manish kumar",
+          wish: "Happy Birthday, Ma'am! Thank you for being such an incredible mentor and for all the skills and knowledge you've shared. Your guidance has made a huge impact on my journey, and I am deeply grateful for your support. Wishing you a wonderful year ahead filled with happiness, success, and good health!",
+        },
+        {
+          name: "Gowrish H B",
+          wish: "ma'am you changed the way i see people i used to think no one cares about others they just do their job take their money and go home like many other teachers i have seen but you are different 💖 you care about every one of your students and to have you as our teacher is a blessing 🥰 for all of us no matter how much we mess up you still care about us and never stop appreciating every little thing we do because i think you know how it feels to not be appreciated for the progress we make and only receive criticism for the things we mess up 🎂Happy Birthday Suda ma'am ✨ ✨Please take care ✨",
+        },
+        {
+          name: "Charan",
+          wish: "Happy birthday ma'am🥳 Thankyou for your support and love on us.. Really means alot always praying for your health and strength. You have a special place in  our family also thank you for everything ma'am. Once again happy birthday mam 🤩",
+        },
+        {
+          name: "Mahendra D M",
+          wish: "Happy birthday to a gem so sweet, A guiding light we’re blessed to meet. Your warmth and care inspire each day, Wishing you joy in every way♥️!",
+        },
+        {
+          name: "Virat Kumar",
+          wish: "Dear Sudha Rani Ma'am, Wishing you the happiest of birthdays! 🎉 Your guidance and support have shaped countless futures, including mine. Your dedication, patience, and wisdom inspire me every day. Thank you for being a mentor who not only teaches but also uplifts and empowers. May this special day bring you as much happiness as you've given to others. 🌟 A teacher takes a hand, opens a mind, and touches a heart forever. 💙 Happy Birthday! 🥳 ~ Virat",
+        },
+        {
+          name: "Sharvari Shetty",
+          wish: "Happiest Birthday to our dearest Sudha Ma'am 🤍🎉 On your special day, we wish you all the happiness in the world. We will always keep you and your loved ones in our prayers.🧿 Thank you ma'am for everything that you have done for us. Thank you for being our support. We'll always be grateful to you. And I wish that this birthday is extra special for you.🎂🎈",
+        },
+        {
+          name: "Mudasir shariff",
+          wish: "Wish you happy birthday ma'am",
+        },
+        {
+          name: "Mirsab Hussain N",
+          wish: "Happy Birthday Sudharani ma'am !! 🎉 In this special day, I just wanted to express how grateful I am for all that you do. In my eyes you have been more than just a teacher. You have been a true mentor and an inspiration. Your dedication, guidance, and knowledge have made a significant differences in not only in just my future but for all the others too. Your teachings have an amazing way to make complex things feel manageable, and i believe its rare to find someone who cares soo deeply and invests soo much in their students. I feel blessed by god to have such a chance to learn from such a powerful, independent and selfless teacher who will go above and beyond for her students. And clearly god has placed you in this role because you have the power to make a difference in so many students lives. Ma'am i wish you a very happy birthday filled with happiness, where you are surrounded by all the people who love you as much as we all do. May this year and all the years henceforth bring you all the success, happiness and many many happy and memorable moments. Thank you ma'am for your commitment and compassion as what you do shows that there is dedication to a purpose greater than oneself. Once again a very Happy Birthday ma'am !!!!!!",
+        },
+        {
+          name: "Sowmya",
+          wish: "Wish you many more happy returns of the day Mam❤️ May this year be filled with lots of happiness 🎉",
+        },
+      ];
+
+      function createConfetti(x, y) {
+        const colors = ["#ff7676", "#ffd0d0", "#ff9a9e", "#a18cd1", "#fad0c4"];
+        const emojis = ["🎉", "🎈", "🎂", "✨", "💝", "🌟", "🎊", "🎯", "🎪"];
+
+        // Create particle confetti
+        for (let i = 0; i < 60; i++) {
+          const confetti = document.createElement("div");
+          confetti.className = "confetti";
+          confetti.style.left = `${x}px`;
+          confetti.style.top = `${y}px`;
+          confetti.style.backgroundColor =
+            colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.width = `${Math.random() * 12 + 5}px`;
+          confetti.style.height = confetti.style.width;
+          confetti.style.borderRadius = Math.random() > 0.5 ? "50%" : "0";
+
+          const duration = 1 + Math.random() * 2;
+          const spread = 300;
+
+          gsap.to(confetti, {
+            x: -spread + Math.random() * spread * 2,
+            y: Math.random() * spread,
+            rotation: Math.random() * 720 - 360,
+            duration: duration,
+            ease: "power2.out",
+            opacity: 0,
+            onComplete: () => confetti.remove(),
+          });
+
+          document.body.appendChild(confetti);
+        }
+
+        // Create floating emojis
+        for (let i = 0; i < 5; i++) {
+          const emoji = document.createElement("div");
+          emoji.className = "emoji";
+          emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          emoji.style.left = `${x}px`;
+          emoji.style.top = `${y}px`;
+
+          gsap.to(emoji, {
+            x: -150 + Math.random() * 300,
+            y: -200 - Math.random() * 150,
+            rotation: Math.random() * 360,
+            duration: 2.5,
+            ease: "power2.out",
+            opacity: 0,
+            onComplete: () => emoji.remove(),
+          });
+
+          document.body.appendChild(emoji);
+        }
+      }
+
+      function spawnCakeConfetti() {
+        const cake = document.querySelector(".birthday-cake");
+        const rect = cake.getBoundingClientRect();
+        createConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      }
+
+      function createLetter(student, index) {
+        const letter = document.createElement("div");
+        letter.className = "letter";
+
+        const envelope = document.createElement("div");
+        envelope.className = "envelope";
+
+        const paper = document.createElement("div");
+        paper.className = "paper";
+
+        const content = document.createElement("div");
+        content.className = "paper-content";
+
+        const name = document.createElement("h2");
+        name.className = "student-name";
+        name.textContent = `From ${student.name}`;
+
+        const wish = document.createElement("p");
+        wish.className = "wish-text";
+        wish.textContent = student.wish;
+
+        const closeBtn = document.createElement("div");
+        closeBtn.className = "paper-close";
+        closeBtn.innerHTML = "×";
+        closeBtn.onclick = (e) => {
+          e.stopPropagation();
+          letter.classList.remove("letter--open");
+
+          // Animate envelope back
+          gsap.to(envelope, {
+            transform: "translateY(310px)",
+            duration: 0.4,
+          });
+        };
+
+        content.appendChild(name);
+        content.appendChild(wish);
+        paper.appendChild(closeBtn);
+        paper.appendChild(content);
+        letter.appendChild(paper);
+        letter.appendChild(envelope);
+
+        // Add click event to envelope
+        envelope.onclick = () => {
+          if (!letter.classList.contains("letter--open")) {
+            letter.classList.add("letter--open");
+
+            // Create confetti effect
+            const rect = envelope.getBoundingClientRect();
+            createConfetti(rect.left + rect.width / 2, rect.top);
+
+            // Animate envelope down
+            gsap.to(envelope, {
+              transform: "translateY(340px)",
+              duration: 0.4,
+            });
+          }
+        };
+
+        // Add delay to entrance animation
+        gsap.from(letter, {
+          y: 50,
+          opacity: 0,
+          duration: 0.8,
+          delay: index * 0.2,
+          ease: "power2.out",
+        });
+
+        return letter;
+      }
+
+      // Initialize letters
+      function initializeLetters() {
+        const container = document.getElementById("lettersContainer");
+        students.forEach((student, index) => {
+          const letter = createLetter(student, index);
+          container.appendChild(letter);
+        });
+      }
+
+      // Start animation when page loads
+      window.addEventListener("load", () => {
+        initializeLetters();
+
+        // Animate header elements
+        gsap.from(".header h1", {
+          y: -50,
+          opacity: 0,
+          duration: 1,
+          ease: "power2.out",
+        });
+
+        gsap.from(".header p", {
+          y: 30,
+          opacity: 0,
+          duration: 1,
+          delay: 0.5,
+          ease: "power2.out",
+        });
+      });
+    </script>
+  </body>
+</html>
